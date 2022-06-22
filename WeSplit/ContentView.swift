@@ -10,18 +10,19 @@ import SwiftUI
 struct ContentView: View {
     
     private let quantityFormatter: NumberFormatter = {
-          let formatter = NumberFormatter()
-          formatter.locale = Locale.current
-          formatter.numberStyle = .decimal
-          formatter.minimumFractionDigits = 2
-          formatter.maximumFractionDigits = 2
-          formatter.zeroSymbol = ""
-          return formatter
-      }()
+        let formatter = NumberFormatter()
+        formatter.currencyCode = Locale.current.currencyCode ?? "USD"
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.zeroSymbol = ""
+        return formatter
+    }()
     
     @State private var checkAmount = 0.0
     @State private var numberOfPeople = 2
     @State private var tipPercentage = 20
+    @FocusState private var amountIsFocused: Bool
     
     let tipPercentages = [10,15,20,25,0]
     
@@ -40,9 +41,11 @@ struct ContentView: View {
     var body: some View {
         NavigationView{
             Form{
+                
                 Section{
                     TextField("Amount", value: $checkAmount,formatter: quantityFormatter)
-                    .keyboardType(.decimalPad)
+                        .keyboardType(.decimalPad)
+                        .focused($amountIsFocused)
                     
                     Picker("Number of people",selection: $numberOfPeople){
                         ForEach(2..<100){
@@ -64,14 +67,19 @@ struct ContentView: View {
                 
                 Section{
                     Text(totalPerPerson,format: .currency(code: Locale.current.currencyCode ?? "USD"))
-                    
                 }
-                
             }
             .navigationTitle("WeSplit")
-            
+            .toolbar{
+                ToolbarItemGroup(placement: .keyboard){
+                    Spacer()
+                    
+                    Button("Done"){
+                        amountIsFocused = false
+                    }
+                }
+            }
         }
-        
     }
 }
 
